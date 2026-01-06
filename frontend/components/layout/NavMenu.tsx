@@ -6,7 +6,9 @@ export function NavMenu() {
       <div className="flex items-center gap-6">
         {/* Logo / Nome */}
         <span className="font-bold text-lg">
+            <Link href="/">
           IoT Dashboard
+            </Link>
         </span>
 
         {/* Links */}

@@ -10,7 +10,7 @@ export default function Home() {
         Gerencie e monitore seus dispositivos conectados com facilidade.
       </p>
       <Image
-        src="/iot_dashboard_illustration.png"
+        src="/image.png"
         alt="Ilustração do Painel de Controle IoT"
         width={600}
         height={400}

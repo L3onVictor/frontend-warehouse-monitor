@@ -6,8 +6,7 @@ export default function DashboardPage() {
 
     
     <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-gray-900">
-            <NavMenu />
-
+        <p>olá</p>
         <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-6">
             Bem-vindo ao Painel de Controle IoT
         </h1>

@@ -6,7 +6,11 @@ import { Footer } from "./Footer";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isPublicPage = pathname === "/login" || pathname === "/cadastro-usuario";
+    const isPublicPage =
+        pathname === "/login" ||
+        pathname === "/cadastro-usuario" ||
+        pathname === "/esqueci-senha" ||
+        pathname === "/redefinir-senha";
 
     if (isPublicPage) {
         return <main className="min-h-screen bg-white dark:bg-gray-900">{children}</main>;

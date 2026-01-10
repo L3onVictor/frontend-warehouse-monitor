@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 export function NavMenu() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   return (
     <>
@@ -86,14 +87,62 @@ export function NavMenu() {
         </nav>
 
         {/* Footer / User Profile */}
-        <div className="p-4 border-t border-slate-800">
-          <div className="flex items-center gap-3 px-2 py-2">
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold">
-              U
+        <div className="p-4 border-t border-slate-800 relative">
+          <div className="flex items-center justify-between group">
+            <div className="flex items-center gap-3 px-2">
+              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold ring-2 ring-slate-700">
+                L
+              </div>
+              <div className="text-sm">
+                <p className="font-medium text-slate-200">Leonardo</p>
+                <p className="text-xs text-slate-500">Admin</p>
+              </div>
             </div>
-            <div className="text-sm">
-              <p className="font-medium">Usuário</p>
-              <p className="text-xs text-slate-500">Admin</p>
+
+            <div className="relative">
+              <button
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white transition-colors focus:outline-none"
+              >
+                <svg className={`w-5 h-5 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Dropdown Menu */}
+              {isProfileOpen && (
+                <>
+                  {/* Backdrop to close on click outside */}
+                  <div className="fixed inset-0 z-10" onClick={() => setIsProfileOpen(false)}></div>
+
+                  <div className="absolute bottom-10 right-0 w-48 bg-slate-800 rounded-lg shadow-xl border border-slate-700 z-20 overflow-hidden mb-2">
+                    <div className="py-1">
+                      <Link
+                        href="/perfil"
+                        className="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        Ver Perfil
+                      </Link>
+                      <Link
+                        href="/configuracoes"
+                        className="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        Configurações
+                      </Link>
+                      <div className="border-t border-slate-700 my-1"></div>
+                      <Link
+                        href="/login"
+                        className="block px-4 py-2 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        Sair
+                      </Link>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

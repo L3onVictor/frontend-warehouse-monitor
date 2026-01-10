@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 export function NavMenu() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
   return (

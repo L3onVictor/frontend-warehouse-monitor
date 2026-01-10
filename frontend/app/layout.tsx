@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { NavMenu, Footer } from "@/components/layout";
+import { NavMenu, Footer, AppShell } from "@/components/layout";
 
 import "./globals.css";
 
@@ -29,13 +29,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <NavMenu />
-        <main className="md:ml-64 min-h-screen flex flex-col pt-16 md:pt-0 transition-all duration-300">
-          <div className="flex-1">
-            {children}
-          </div>
-          <Footer />
-        </main>
+        <AppShell>
+          {children}
+        </AppShell>
       </body>
     </html>
   );

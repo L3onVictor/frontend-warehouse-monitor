@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NavMenu, Footer, AppShell } from "@/components/layout";
+import { DevicesProvider } from "@/contexts/DevicesContext";
 
 import "./globals.css";
 
@@ -29,9 +30,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AppShell>
-          {children}
-        </AppShell>
+        <DevicesProvider>
+          <AppShell>
+            {children}
+          </AppShell>
+        </DevicesProvider>
       </body>
     </html>
   );

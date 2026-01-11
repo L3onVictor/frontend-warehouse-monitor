@@ -11,7 +11,8 @@ export interface Device {
     macAddress?: string;
     status: "online" | "offline";
     isActive: boolean;
-    location?: string;
+    location?: string; // Keeping for backward compatibility or display, but environmentId is the source of truth
+    environmentId?: string;
     lastSeen?: string;
 }
 
@@ -34,6 +35,7 @@ const INITIAL_DEVICES: Device[] = [
         status: "online",
         isActive: true,
         location: "Galpão A",
+        environmentId: "env-1", // Galpão A
         lastSeen: "2 min atrás",
     },
     {
@@ -44,6 +46,7 @@ const INITIAL_DEVICES: Device[] = [
         status: "offline",
         isActive: false,
         location: "Escritório",
+        environmentId: "env-2", // Escritório
         lastSeen: "1 hora atrás",
     },
     {
@@ -54,6 +57,7 @@ const INITIAL_DEVICES: Device[] = [
         status: "online",
         isActive: true,
         location: "Produção",
+        environmentId: "env-3", // Produção
         lastSeen: "Agora",
     },
 ];

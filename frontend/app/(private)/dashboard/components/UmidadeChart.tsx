@@ -1,4 +1,3 @@
-// components/TemperatureChart.tsx
 'use client';
 
 import {
@@ -11,10 +10,10 @@ import {
 } from "recharts";
 import { TemperatureReading } from "./types";
 
-export function TemperatureChart({ data }: { data: TemperatureReading[] }) {
+export function UmidadeChart({ data }: { data: TemperatureReading[] }) {
   return (
     <div className="rounded-xl bg-white dark:bg-gray-800 p-4 shadow">
-      <h2 className="mb-4 font-semibold">Variação de Temperatura</h2>
+      <h2 className="mb-4 font-semibold">Variação de Umidade</h2>
 
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
@@ -28,17 +27,17 @@ export function TemperatureChart({ data }: { data: TemperatureReading[] }) {
                 })
               }
             />
-            <YAxis unit="°C" />
+            <YAxis unit="%" domain={[0, 100]} />
             <Tooltip
               labelFormatter={(value) =>
                 new Date(value).toLocaleString("pt-BR")
               }
-              formatter={(value) => `${value}°C`}
+              formatter={(value) => `${value}%`}
             />
             <Line
               type="monotone"
-              dataKey="temperature"
-              stroke="#ef4444"
+              dataKey="valor"
+              stroke="#3b82f6"
               strokeWidth={2}
               dot={false}
             />

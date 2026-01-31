@@ -36,11 +36,6 @@ export function SummaryCards({ temperatureData = [], umidadeData = [] }: Summary
       {/* Cards de Temperatura */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card 
-          title="Temperatura Máxima" 
-          value={`${tempMax.toFixed(1)} °C`}
-          color="red"
-        />
-        <Card 
           title="Temperatura Mínima" 
           value={`${tempMin.toFixed(1)} °C`}
           color="red"
@@ -50,15 +45,15 @@ export function SummaryCards({ temperatureData = [], umidadeData = [] }: Summary
           value={`${tempAvg.toFixed(1)} °C`}
           color="red"
         />
+        <Card 
+          title="Temperatura Máxima" 
+          value={`${tempMax.toFixed(1)} °C`}
+          color="red"
+        />
       </div>
 
       {/* Cards de Umidade */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card 
-          title="Umidade Máxima" 
-          value={`${umidadeMax.toFixed(1)} %`}
-          color="blue"
-        />
         <Card 
           title="Umidade Mínima" 
           value={`${umidadeMin.toFixed(1)} %`}
@@ -67,6 +62,11 @@ export function SummaryCards({ temperatureData = [], umidadeData = [] }: Summary
         <Card 
           title="Umidade Média" 
           value={`${umidadeAvg.toFixed(1)} %`}
+          color="blue"
+        />
+        <Card 
+          title="Umidade Máxima" 
+          value={`${umidadeMax.toFixed(1)} %`}
           color="blue"
         />
       </div>

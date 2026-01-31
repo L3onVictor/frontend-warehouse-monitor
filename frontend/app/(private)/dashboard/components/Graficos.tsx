@@ -30,8 +30,17 @@ export function TemperatureChart({ data }: { data: TemperatureReading[] }) {
             />
             <YAxis unit="°C" />
             <Tooltip
+              contentStyle={{
+                color: "#383838"
+              }}
               labelFormatter={(value) =>
-                new Date(value).toLocaleString("pt-BR")
+                new Date(value).toLocaleString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
               }
               formatter={(value) => `${value}°C`}
             />
@@ -41,6 +50,7 @@ export function TemperatureChart({ data }: { data: TemperatureReading[] }) {
               stroke="#ef4444"
               strokeWidth={2}
               dot={false}
+              name="Temperatura"
             />
           </LineChart>
         </ResponsiveContainer>

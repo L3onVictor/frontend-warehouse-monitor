@@ -29,8 +29,17 @@ export function UmidadeChart({ data }: { data: TemperatureReading[] }) {
             />
             <YAxis unit="%" domain={[0, 100]} />
             <Tooltip
+              contentStyle={{
+                color: "#383838"
+              }}
               labelFormatter={(value) =>
-                new Date(value).toLocaleString("pt-BR")
+                new Date(value).toLocaleString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
               }
               formatter={(value) => `${value}%`}
             />
@@ -40,6 +49,7 @@ export function UmidadeChart({ data }: { data: TemperatureReading[] }) {
               stroke="#3b82f6"
               strokeWidth={2}
               dot={false}
+              name="Umidade"
             />
           </LineChart>
         </ResponsiveContainer>

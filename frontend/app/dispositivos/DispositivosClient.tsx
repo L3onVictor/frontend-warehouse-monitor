@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import Link from "next/link";
 import { useDevices } from "@/contexts/DevicesContext";
@@ -7,15 +7,12 @@ import { DeviceCard } from "@/components/devices/DeviceCard";
 import { useSearchParams } from "next/navigation";
 
 export default function DispositivosPage() {
-
-
     const { devices } = useDevices();
     const { environments } = useEnvironments();
     const searchParams = useSearchParams();
     const envFilter = searchParams.get('env');
 
     return (
-        
         <div className="p-6 md:p-8 space-y-8">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

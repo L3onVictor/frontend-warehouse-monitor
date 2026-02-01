@@ -16,7 +16,7 @@ interface EnvironmentsContextType {
     getEnvironment: (id: string) => Environment | undefined;
 }
 
-const EnvironmentsContext = createContext<EnvironmentsContextType | undefined>(undefined);
+export const EnvironmentsContext = createContext<EnvironmentsContextType | undefined>(undefined);
 
 const INITIAL_ENVIRONMENTS: Environment[] = [
     { id: "env-1", name: "Galpão A", description: "Área de armazenamento principal" },

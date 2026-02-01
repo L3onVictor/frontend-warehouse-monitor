@@ -1,17 +1,38 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { TemperatureChart } from "./components/Graficos";
 import { UmidadeChart } from "./components/UmidadeChart";
 import { SummaryCards } from "./components/SummaryCards";
-import { TemperatureReading, converterMedicaoParaTemperatureReading } from "./components/types";
+import {
+  TemperatureReading,
+  converterMedicaoParaTemperatureReading,
+} from "./components/types";
 import { buscarTemperaturas, buscarUmidade } from "@/services/api";
+import { PeriodoFiltro } from "./components/filters/types";
+import { filtrarPeriodo } from "./components/filters/FiltrarPeriodos";
+import { PeriodoFilter } from "./components/PeriodoFilter";
+import { DatePicker } from "./components/filters/DatePicker";
 
 export default function DashboardPage() {
   const [temperatureData, setTemperatureData] = useState<TemperatureReading[]>([]);
   const [umidadeData, setUmidadeData] = useState<TemperatureReading[]>([]);
+  const [periodo, setPeriodo] = useState<PeriodoFiltro>('mes');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dataSelecionada, setDataSelecionada] = useState<Date>(new Date());
+
+
+  // 🔥 Dados filtrados (derivados)
+  const temperatureFiltrada = useMemo(
+    () => filtrarPeriodo(temperatureData, periodo, dataSelecionada),
+    [temperatureData, periodo, dataSelecionada]
+  );
+
+  const umidadeFiltrada = useMemo(
+    () => filtrarPeriodo(umidadeData, periodo, dataSelecionada),
+    [umidadeData, periodo, dataSelecionada]
+  );
 
   useEffect(() => {
     async function carregarDados() {
@@ -19,17 +40,14 @@ export default function DashboardPage() {
         setLoading(true);
         setError(null);
 
-        // Buscar ambos os dados em paralelo
-        const [medicoeTemp, medicoesUmidade] = await Promise.all([
+        const [medicoesTemp, medicoesUmidade] = await Promise.all([
           buscarTemperaturas(),
           buscarUmidade(),
         ]);
 
-        // Converter dados
-        const tempConvertidos = medicoeTemp.map(converterMedicaoParaTemperatureReading);
+        const tempConvertidos = medicoesTemp.map(converterMedicaoParaTemperatureReading);
         const umidadeConvertidos = medicoesUmidade.map(converterMedicaoParaTemperatureReading);
 
-        // Ordenar por timestamp
         const sortByTimestamp = (arr: TemperatureReading[]) =>
           arr.sort((a, b) => {
             const dataA = new Date(a.timestamp || a.createdAt || "").getTime();
@@ -48,10 +66,7 @@ export default function DashboardPage() {
     }
 
     carregarDados();
-
-    // Recarregar dados a cada 30 segundos
     const interval = setInterval(carregarDados, 30000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -81,36 +96,25 @@ export default function DashboardPage() {
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-semibold">Dashboard de Sensores</h1>
 
-      {temperatureData.length > 0 || umidadeData.length > 0 ? (
-        <>
-          <SummaryCards 
-            temperatureData={temperatureData} 
-            umidadeData={umidadeData}
-          />
+      {/* 🎛️ Filtro de período */}
+      <div className="flex flex-wrap gap-4 items-center">
+        <PeriodoFilter value={periodo} onChange={setPeriodo} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {temperatureData.length > 0 ? (
-              <TemperatureChart data={temperatureData} />
-            ) : (
-              <div className="flex items-center justify-center h-96 bg-gray-50 rounded-lg col-span-1">
-                <p className="text-gray-500">Nenhum dado de temperatura disponível</p>
-              </div>
-            )}
+        <DatePicker
+          periodo={periodo}
+          data={dataSelecionada}
+          onChange={setDataSelecionada}
+        />
+      </div>
+      <SummaryCards
+        temperatureData={temperatureFiltrada}
+        umidadeData={umidadeFiltrada}
+      />
 
-            {umidadeData.length > 0 ? (
-              <UmidadeChart data={umidadeData} />
-            ) : (
-              <div className="flex items-center justify-center h-96 bg-gray-50 rounded-lg col-span-1">
-                <p className="text-gray-500">Nenhum dado de umidade disponível</p>
-              </div>
-            )}
-          </div>
-        </>
-      ) : (
-        <div className="flex items-center justify-center h-96 bg-gray-50 rounded-lg">
-          <p className="text-gray-500">Nenhum dado de sensores disponível</p>
-        </div>
-      )}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TemperatureChart data={temperatureFiltrada} />
+        <UmidadeChart data={umidadeFiltrada} />
+      </div>
     </div>
   );
 }

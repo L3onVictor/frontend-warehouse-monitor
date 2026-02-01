@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { listarAmbientes, listarDispositivos, type Ambiente, type Dispositivo } from "@/services/api";
 
-export default function DispositivosClient() {
+export default function DispositivosPage() {
     const searchParams = useSearchParams();
     const envFilter = searchParams.get('env');
 

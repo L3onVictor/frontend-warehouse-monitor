@@ -3,29 +3,34 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useEnvironments } from "@/contexts/EnvironmentsContext";
+import { criarAmbiente } from "@/services/api";
 
 export default function NewEnvironmentPage() {
     const router = useRouter();
-    const { addEnvironment } = useEnvironments();
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
 
         const formData = new FormData(e.currentTarget);
-        const name = formData.get("name") as string;
-        const description = formData.get("description") as string;
+        const nome = formData.get("name") as string;
+        const descricao = formData.get("description") as string;
+        const tipo = formData.get("type") as "frio" | "arejado";
 
-        // Simulate API delay
-        setTimeout(() => {
-            addEnvironment({
-                name,
-                description,
+        try {
+            await criarAmbiente({
+                nome,
+                descricao,
+                tipo,
             });
             router.push("/ambientes");
-        }, 1000);
+        } catch (error) {
+            console.error("Failed to create environment", error);
+            alert("Erro ao criar ambiente. Verifique o console.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -60,6 +65,22 @@ export default function NewEnvironmentPage() {
                             className="mt-1 block w-full rounded-md border border-gray-300 dark:border-slate-600 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-slate-700 dark:text-white sm:text-sm"
                             placeholder="Ex: Galpão B"
                         />
+                    </div>
+
+                    {/* Tipo */}
+                    <div>
+                        <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                            Tipo
+                        </label>
+                        <select
+                            name="type"
+                            id="type"
+                            required
+                            className="mt-1 block w-full rounded-md border border-gray-300 dark:border-slate-600 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-slate-700 dark:text-white sm:text-sm"
+                        >
+                            <option value="arejado">Arejado</option>
+                            <option value="frio">Refrigerado (Frio)</option>
+                        </select>
                     </div>
 
                     {/* Descrição */}

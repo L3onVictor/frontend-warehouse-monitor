@@ -3,29 +3,33 @@
 import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { listarAmbientes, atualizarAmbiente, type Ambiente } from "@/services/api";
+import { buscarDispositivo, atualizarDispositivo, listarAmbientes, type Dispositivo, type Ambiente } from "@/services/api";
 
-export default function EditEnvironmentPage({ params }: { params: Promise<{ id: string }> }) {
+export default function EditDevicePage({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params);
     const router = useRouter();
 
     const [loading, setLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
-    const [environment, setEnvironment] = useState<Ambiente | null>(null);
+    const [device, setDevice] = useState<Dispositivo | null>(null);
+    const [environments, setEnvironments] = useState<Ambiente[]>([]);
 
     useEffect(() => {
-        const fetchEnvironment = async () => {
+        const fetchData = async () => {
             try {
-                const environments = await listarAmbientes();
-                const found = environments.find(e => e.id === resolvedParams.id);
-                setEnvironment(found || null);
+                const [foundDevice, envs] = await Promise.all([
+                    buscarDispositivo(resolvedParams.id),
+                    listarAmbientes()
+                ]);
+                setDevice(foundDevice || null);
+                setEnvironments(envs);
             } catch (error) {
-                console.error("Failed to fetch environment details", error);
+                console.error("Failed to fetch data", error);
             } finally {
                 setInitialLoading(false);
             }
         };
-        fetchEnvironment();
+        fetchData();
     }, [resolvedParams.id]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -34,27 +38,29 @@ export default function EditEnvironmentPage({ params }: { params: Promise<{ id: 
 
         const formData = new FormData(e.currentTarget);
         const nome = formData.get("name") as string;
-        const descricao = formData.get("description") as string;
+        const ambienteId = formData.get("ambienteId") as string;
 
         try {
-            await atualizarAmbiente(resolvedParams.id, {
+            await atualizarDispositivo(
+                resolvedParams.id,
                 nome,
-                descricao,
-            });
-            router.push(`/ambientes/${resolvedParams.id}`);
+                ambienteId || undefined // if empty string, pass undefined
+            );
+            router.push(`/dispositivos/${resolvedParams.id}`);
         } catch (error) {
-            console.error("Failed to update environment", error);
-            alert("Erro ao atualizar ambiente.");
+            console.error("Failed to update device", error);
+            // Handle error (maybe show a toast/alert)
+            alert("Erro ao atualizar dispositivo.");
         } finally {
             setLoading(false);
         }
     };
 
     if (initialLoading) return <div className="p-8">Carregando...</div>;
-    if (!environment) return (
+    if (!device) return (
         <div className="p-8 text-center">
-            <h2 className="text-xl font-bold">Ambiente não encontrado</h2>
-            <Link href="/ambientes" className="text-blue-600 hover:underline mt-4 block">Voltar para lista</Link>
+            <h2 className="text-xl font-bold">Dispositivo não encontrado</h2>
+            <Link href="/dispositivos" className="text-blue-600 hover:underline mt-4 block">Voltar para lista</Link>
         </div>
     );
 
@@ -62,54 +68,74 @@ export default function EditEnvironmentPage({ params }: { params: Promise<{ id: 
         <div className="max-w-2xl mx-auto p-6 md:p-8">
             <div className="mb-8">
                 <Link
-                    href={`/ambientes/${resolvedParams.id}`}
-                    className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 flex items-center gap-1 mb-2"
+                    href={`/dispositivos/${resolvedParams.id}`}
+                    className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:hover:bg-slate-600 transition-colors mb-4"
                 >
                     ← Voltar para detalhes
                 </Link>
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                    Editar Ambiente
+                    Editar Dispositivo
                 </h1>
                 <p className="text-gray-500 dark:text-gray-400 mt-1">
-                    Atualize as informações do ambiente.
+                    Atualize as informações do dispositivo.
                 </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-slate-800 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700">
                 <div className="space-y-6">
+                    {/* ID (Read-only) */}
+                    <div>
+                        <label htmlFor="id" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                            ID do Dispositivo
+                        </label>
+                        <input
+                            type="text"
+                            id="id"
+                            disabled
+                            value={device.id}
+                            className="mt-1 block w-full rounded-md border border-gray-300 dark:border-slate-600 px-3 py-2 shadow-sm bg-gray-100 dark:bg-slate-900 text-gray-500 dark:text-gray-400 sm:text-sm cursor-not-allowed"
+                        />
+                    </div>
+
                     {/* Nome */}
                     <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                            Nome do Ambiente
+                            Nome do Dispositivo
                         </label>
                         <input
                             type="text"
                             name="name"
                             id="name"
-                            required
-                            defaultValue={environment.nome}
+                            defaultValue={device.nome}
                             className="mt-1 block w-full rounded-md border border-gray-300 dark:border-slate-600 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-slate-700 dark:text-white sm:text-sm"
+                            placeholder="Ex: Sensor Temperatura Sala 01"
                         />
                     </div>
 
-                    {/* Descrição */}
+                    {/* Ambiente */}
                     <div>
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                            Descrição (Opcional)
+                        <label htmlFor="ambienteId" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                            Ambiente
                         </label>
-                        <textarea
-                            name="description"
-                            id="description"
-                            rows={3}
-                            defaultValue={environment.descricao}
+                        <select
+                            id="ambienteId"
+                            name="ambienteId"
+                            defaultValue={device.ambienteId || ""}
                             className="mt-1 block w-full rounded-md border border-gray-300 dark:border-slate-600 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-slate-700 dark:text-white sm:text-sm"
-                        />
+                        >
+                            <option value="">Selecionar ambiente (opcional)</option>
+                            {environments.map((env) => (
+                                <option key={env.id} value={env.id}>
+                                    {env.nome}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 </div>
 
                 <div className="pt-4 flex justify-end gap-3">
                     <Link
-                        href={`/ambientes/${resolvedParams.id}`}
+                        href={`/dispositivos/${resolvedParams.id}`}
                         className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
                         Cancelar

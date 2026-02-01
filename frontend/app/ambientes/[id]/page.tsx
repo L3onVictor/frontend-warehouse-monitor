@@ -3,28 +3,38 @@
 import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useEnvironments } from "@/contexts/EnvironmentsContext";
-import { useDevices } from "@/contexts/DevicesContext";
+import { listarAmbientes, removerAmbiente, listarDispositivos, type Ambiente, type Dispositivo } from "@/services/api";
 
 export default function EnvironmentDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params);
     const router = useRouter();
-    const { getEnvironment, removeEnvironment } = useEnvironments();
-    const { devices } = useDevices();
 
-    const [environment, setEnvironment] = useState<any>(null);
+    const [environment, setEnvironment] = useState<Ambiente | null>(null);
+    const [devices, setDevices] = useState<Dispositivo[]>([]); // To count linked devices
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const foundEnv = getEnvironment(resolvedParams.id);
-        if (foundEnv) {
-            setEnvironment(foundEnv);
-        }
-        setLoading(false);
-    }, [resolvedParams.id, getEnvironment]);
+        const fetchData = async () => {
+            try {
+                const [envs, allDevices] = await Promise.all([
+                    listarAmbientes(),
+                    listarDispositivos()
+                ]);
 
-    const handleDelete = () => {
-        const linkedDevices = devices.filter(d => d.environmentId === resolvedParams.id);
+                const found = envs.find(e => e.id === resolvedParams.id);
+                setEnvironment(found || null);
+                setDevices(allDevices);
+            } catch (error) {
+                console.error("Failed to fetch environment details", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [resolvedParams.id]);
+
+    const handleDelete = async () => {
+        const linkedDevices = devices.filter(d => d.ambienteId === resolvedParams.id);
         if (linkedDevices.length > 0) {
             if (!confirm(`Este ambiente possui ${linkedDevices.length} dispositivos vinculados. Ao excluir, eles ficarão sem ambiente. Deseja continuar?`)) {
                 return;
@@ -35,8 +45,13 @@ export default function EnvironmentDetailsPage({ params }: { params: Promise<{ i
             }
         }
 
-        removeEnvironment(resolvedParams.id);
-        router.push("/ambientes");
+        try {
+            await removerAmbiente(resolvedParams.id);
+            router.push("/ambientes");
+        } catch (error) {
+            console.error("Error removing environment", error);
+            alert("Erro ao remover ambiente.");
+        }
     };
 
     if (loading) return <div className="p-8">Carregando...</div>;
@@ -47,14 +62,14 @@ export default function EnvironmentDetailsPage({ params }: { params: Promise<{ i
         </div>
     );
 
-    const linkedDevicesCount = devices.filter(d => d.environmentId === environment.id).length;
+    const linkedDevicesCount = devices.filter(d => d.ambienteId === environment.id).length;
 
     return (
         <div className="max-w-3xl mx-auto p-6 md:p-8">
             <div className="mb-6 flex items-center justify-between">
                 <Link
                     href="/ambientes"
-                    className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 flex items-center gap-1"
+                    className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:hover:bg-slate-600 transition-colors"
                 >
                     ← Voltar para lista
                 </Link>
@@ -84,8 +99,11 @@ export default function EnvironmentDetailsPage({ params }: { params: Promise<{ i
                             </svg>
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{environment.name}</h1>
+                            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{environment.nome}</h1>
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ID: {environment.id}</p>
+                            <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-gray-600 dark:text-gray-300 mt-2 inline-block">
+                                {environment.tipo}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -94,7 +112,7 @@ export default function EnvironmentDetailsPage({ params }: { params: Promise<{ i
                     <div>
                         <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Descrição</h3>
                         <p className="mt-1 text-gray-900 dark:text-white">
-                            {environment.description || "Sem descrição."}
+                            {environment.descricao || "Sem descrição."}
                         </p>
                     </div>
 
@@ -104,7 +122,7 @@ export default function EnvironmentDetailsPage({ params }: { params: Promise<{ i
                             <span className="text-3xl font-bold text-gray-900 dark:text-white">{linkedDevicesCount}</span>
                             <Link
                                 href={`/dispositivos?env=${environment.id}`}
-                                className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                                className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:hover:bg-blue-900/60 transition-colors"
                             >
                                 Ver dispositivos vinculados &rarr;
                             </Link>

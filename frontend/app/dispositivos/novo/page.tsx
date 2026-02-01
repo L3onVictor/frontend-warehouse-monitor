@@ -1,17 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useEnvironments } from "@/contexts/EnvironmentsContext";
-import { cadastrarDispositivo } from "@/services/api";
+import { cadastrarDispositivo, listarAmbientes, type Ambiente } from "@/services/api";
 
 export default function NewDevicePage() {
     const router = useRouter();
-    const { environments } = useEnvironments();
+    const [environments, setEnvironments] = useState<Ambiente[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+
+    useEffect(() => {
+        const fetchEnvs = async () => {
+            try {
+                const data = await listarAmbientes();
+                setEnvironments(data);
+            } catch (error) {
+                console.error("Failed to fetch environments for new device page", error);
+            }
+        };
+        fetchEnvs();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -38,7 +49,7 @@ export default function NewDevicePage() {
             );
 
             setSuccess(true);
-            
+
             // Redirecionar após 1.5 segundos
             setTimeout(() => {
                 router.push("/dispositivos");
@@ -128,7 +139,7 @@ export default function NewDevicePage() {
                             <option value="">Selecionar ambiente (opcional)</option>
                             {environments.map((env) => (
                                 <option key={env.id} value={env.id}>
-                                    {env.name}
+                                    {env.nome}
                                 </option>
                             ))}
                         </select>

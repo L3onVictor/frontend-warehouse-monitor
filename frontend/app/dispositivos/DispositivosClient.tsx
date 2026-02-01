@@ -1,21 +1,54 @@
-'use client';
+"use client";
 
 import Link from "next/link";
-import { useDevices } from "@/contexts/DevicesContext";
-import { useEnvironments } from "@/contexts/EnvironmentsContext";
 import { DeviceCard } from "@/components/devices/DeviceCard";
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { listarAmbientes, listarDispositivos, type Ambiente, type Dispositivo } from "@/services/api";
 
-export default function DispositivosPage() {
-
-
-    const { devices } = useDevices();
-    const { environments } = useEnvironments();
+export default function DispositivosClient() {
     const searchParams = useSearchParams();
     const envFilter = searchParams.get('env');
 
+    const [environments, setEnvironments] = useState<Ambiente[]>([]);
+    const [devices, setDevices] = useState<Dispositivo[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [envsData, devicesData] = await Promise.all([
+                    listarAmbientes(),
+                    listarDispositivos()
+                ]);
+                setEnvironments(envsData);
+                setDevices(devicesData);
+            } catch (error) {
+                console.error("Failed to fetch data for devices page", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    // Filter devices based on query param
+    const filteredDevices = envFilter
+        ? devices.filter(d => d.ambienteId === envFilter)
+        : devices;
+
+    // Helper to get environment name
+    const getEnvName = (id?: string) => {
+        if (!id) return "Sem Ambiente";
+        const env = environments.find(e => e.id === id);
+        return env ? env.nome : "Desconhecido";
+    };
+
+    if (loading) {
+        return <div className="p-6 md:p-8">Carregando dispositivos...</div>;
+    }
+
     return (
-        
         <div className="p-6 md:p-8 space-y-8">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -38,20 +71,26 @@ export default function DispositivosPage() {
                 </Link>
             </div>
 
-            {/* Overall Stats (Optional - kept separate from environment sections) */}
+            {/* Overall Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden group">
-                    {/* ... (Kept stats implementation same as before for visual consistency if desired, or we can simplify) ... */}
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total de Dispositivos</p>
                     <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{devices.length}</p>
                 </div>
+                {/* 
+                    Note: 'status' and 'isActive' are not yet in the backend Dispositivo entity or API.
+                    I will comment out or use placeholders for now until Measurement integration provides status.
+                */}
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden group">
-                    <p className="text-sm font-medium text-green-600 dark:text-green-400">Online</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{devices.filter(d => d.status === 'online').length}</p>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Ambientes Monitorados</p>
+                    {/* Unique environment IDs in devices */}
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+                        {new Set(devices.map(d => d.ambienteId).filter(Boolean)).size}
+                    </p>
                 </div>
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden group">
-                    <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Ativos</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{devices.filter(d => d.isActive).length}</p>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Dispositivos Sem Ambiente</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{devices.filter(d => !d.ambienteId).length}</p>
                 </div>
             </div>
 
@@ -60,15 +99,14 @@ export default function DispositivosPage() {
                 {environments
                     .filter(env => !envFilter || env.id === envFilter)
                     .map(env => {
-                        const envDevices = devices.filter(d => d.environmentId === env.id);
-                        if (envDevices.length === 0 && envFilter) return null; // If filtering and no devices, maybe show empty state per env or just nothing?
-                        // Let's show the section even if empty if it's not filtered, to show structure.
+                        const envDevices = devices.filter(d => d.ambienteId === env.id);
+                        if (envDevices.length === 0 && envFilter) return null;
 
                         return (
                             <div key={env.id} className="space-y-4">
                                 <div className="flex items-center gap-3 border-b border-gray-200 dark:border-gray-700 pb-2">
                                     <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-                                        {env.name}
+                                        {env.nome}
                                     </h2>
                                     <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
                                         {envDevices.length}
@@ -89,18 +127,18 @@ export default function DispositivosPage() {
                     })}
 
                 {/* Unassigned Devices Section (if any) */}
-                {devices.filter(d => !d.environmentId).length > 0 && !envFilter && (
+                {devices.filter(d => !d.ambienteId).length > 0 && !envFilter && (
                     <div className="space-y-4">
                         <div className="flex items-center gap-3 border-b border-gray-200 dark:border-gray-700 pb-2">
                             <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
                                 Sem Ambiente
                             </h2>
                             <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
-                                {devices.filter(d => !d.environmentId).length}
+                                {devices.filter(d => !d.ambienteId).length}
                             </span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {devices.filter(d => !d.environmentId).map((device) => (
+                            {devices.filter(d => !d.ambienteId).map((device) => (
                                 <DeviceCard key={device.id} device={device} />
                             ))}
                         </div>

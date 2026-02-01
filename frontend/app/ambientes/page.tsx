@@ -1,12 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { useEnvironments } from "@/contexts/EnvironmentsContext";
-import { useDevices } from "@/contexts/DevicesContext";
+import { useEffect, useState } from "react";
+import { listarAmbientes, listarDispositivos, type Ambiente, type Dispositivo } from "@/services/api";
 
 export default function AmbientesPage() {
-    const { environments } = useEnvironments();
-    const { devices } = useDevices();
+    const [environments, setEnvironments] = useState<Ambiente[]>([]);
+    const [devices, setDevices] = useState<Dispositivo[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [envs, allDevices] = await Promise.all([
+                    listarAmbientes(),
+                    listarDispositivos()
+                ]);
+                setEnvironments(envs);
+                setDevices(allDevices);
+            } catch (error) {
+                console.error("Failed to fetch environments", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return <div className="p-6 md:p-8">Carregando ambientes...</div>;
+    }
 
     return (
         <div className="p-6 md:p-8 space-y-8">
@@ -32,15 +55,17 @@ export default function AmbientesPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {environments.map((env) => {
-                    const deviceCount = devices.filter(d => d.environmentId === env.id).length;
-                    const onlineCount = devices.filter(d => d.environmentId === env.id && d.status === 'online').length;
+                    const deviceCount = devices.filter(d => d.ambienteId === env.id).length;
 
                     return (
                         <div key={env.id} className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex justify-between items-start mb-4">
                                 <div>
-                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">{env.name}</h3>
-                                    {env.description && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{env.description}</p>}
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">{env.nome}</h3>
+                                    {env.descricao && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{env.descricao}</p>}
+                                    <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-gray-600 dark:text-gray-300 mt-2 inline-block">
+                                        {env.tipo}
+                                    </span>
                                 </div>
                                 <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
                                     <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,22 +79,18 @@ export default function AmbientesPage() {
                                     <span className="text-gray-500 dark:text-gray-400">Total de Dispositivos</span>
                                     <span className="font-semibold text-gray-900 dark:text-white">{deviceCount}</span>
                                 </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-gray-500 dark:text-gray-400">Online</span>
-                                    <span className="font-semibold text-green-600 dark:text-green-400">{onlineCount}</span>
-                                </div>
                             </div>
 
                             <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
                                 <Link
                                     href={`/ambientes/${env.id}`}
-                                    className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                                    className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:hover:bg-slate-600 transition-colors"
                                 >
                                     Detalhes
                                 </Link>
                                 <Link
                                     href={`/dispositivos?env=${env.id}`}
-                                    className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                                    className="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 border border-transparent rounded-md hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40 transition-colors"
                                 >
                                     Ver dispositivos &rarr;
                                 </Link>

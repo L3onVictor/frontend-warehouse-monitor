@@ -1,11 +1,11 @@
+import  DispositivoClient  from "./DispositivosClient";
 import { Suspense } from "react";
-import DispositivosClient from "./DispositivosClient";
 
 export default function DispositivosPage() {
 
     return (
-        <Suspense fallback={<div>Carregando dispositivos...</div>}>
-            <DispositivosClient />
+        <Suspense fallback={<div className="p-6">Carregando dispositivos...</div>}>
+            <DispositivoClient />
         </Suspense>
     );
 }

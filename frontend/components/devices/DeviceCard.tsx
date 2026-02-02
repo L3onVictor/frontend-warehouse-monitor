@@ -76,17 +76,31 @@ export function DeviceCard({ device }: DeviceCardProps) {
                 </div>
                 */}
 
-                <div className="flex items-center justify-end">
+                <div className="  bg-white dark:bg-slate-800
+                    rounded-xl shadow-sm
+                    border border-slate-200 dark:border-slate-700
+                    p-6
+                    min-h-[180px]
+                    flex flex-col justify-between
+                    hover:shadow-md transition-shadow">
                     {/* Measurements Display */}
-                    <div className="flex-1 flex gap-4 mr-4">
+                    <div className="flex justify-center gap-6">
                         {/* Temp */}
                         <div className="flex items-center gap-1.5 text-sm">
                             <svg className="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 {/* Classic Thermometer Shape */}
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z" />
                             </svg>
-                            <span className="text-gray-600 dark:text-gray-300">
-                                {temp ? `${temp}ºC` : "--"}
+                            <span
+                                className="
+                                text-gray-600 dark:text-gray-300
+                                truncate
+                                max-w-[4.5rem]
+                                inline-block
+                                "
+                                title={temp != null ? `${temp}ºC` : undefined}
+                            >
+                                {temp != null ? `${Number(temp).toFixed(1)}ºC` : "--"}
                             </span>
                         </div>
                         {/* Humidity */}
@@ -95,8 +109,16 @@ export function DeviceCard({ device }: DeviceCardProps) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 21a6 6 0 0 1-6-6c0-3.3 6-11 6-11s6 7.7 6 11a6 6 0 0 1-6 6z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v2" /> {/* Little drop detail */}
                             </svg>
-                            <span className="text-gray-600 dark:text-gray-300">
-                                {hum ? `${hum}%` : "--"}
+                            <span
+                                className="
+                                text-gray-600 dark:text-gray-300
+                                truncate
+                                max-w-[3.5rem]
+                                inline-block
+                                "
+                                title={hum != null ? `${hum}%` : undefined}
+                            >
+                                {hum != null ? `${Number(hum).toFixed(1)}%` : "--"}
                             </span>
                         </div>
                     </div>
@@ -104,13 +126,13 @@ export function DeviceCard({ device }: DeviceCardProps) {
                     {/* Toggle button removed */}
                     <Link
                         href={`/dispositivos/${device.id}/monitorar`}
-                        className="px-3 py-1.5 text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors dark:bg-purple-900/20 dark:text-purple-400 dark:hover:bg-purple-900/40 mr-2"
+                        className="px-3 py-1.5 text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors dark:bg-purple-900/20 dark:text-purple-400 dark:hover:bg-purple-900/40 mr-2 justify-center inline-flex"
                     >
                         Monitorar
                     </Link>
                     <Link
                         href={`/dispositivos/${device.id}`}
-                        className="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40"
+                        className="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40 justify-center inline-flex ml-2"
                     >
                         Detalhes →
                     </Link>

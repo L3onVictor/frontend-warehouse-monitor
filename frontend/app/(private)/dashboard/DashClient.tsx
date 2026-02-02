@@ -8,7 +8,7 @@ import {
   TemperatureReading,
   converterMedicaoParaTemperatureReading,
 } from "./components/types";
-import { buscarTemperaturas, buscarUmidade } from "@/services/api";
+import { buscarTemperaturas, buscarUmidade, listarAmbientes, type Ambiente } from "@/services/api";
 import { PeriodoFiltro } from "./components/filters/types";
 import { filtrarPeriodo } from "./components/filters/FiltrarPeriodos";
 import { PeriodoFilter } from "./components/PeriodoFilter";
@@ -20,7 +20,13 @@ export default function DashboardPage() {
   const [periodo, setPeriodo] = useState<PeriodoFiltro>('mes');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [dataSelecionada, setDataSelecionada] = useState<Date>(new Date());
+  const [dataSelecionada, setDataSelecionada] = useState<{ start: Date; end: Date }>(() => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    return { start, end: now };
+  });
+  const [environments, setEnvironments] = useState<Ambiente[]>([]);
+  const [selectedAmbiente, setSelectedAmbiente] = useState<string | undefined>(undefined);
 
 
   // 🔥 Dados filtrados (derivados)
@@ -40,9 +46,18 @@ export default function DashboardPage() {
         setLoading(true);
         setError(null);
 
+        // Buscar ambientes uma vez
+        try {
+          const envs = await listarAmbientes();
+          setEnvironments(envs);
+        } catch (e) {
+          // não bloquear se falhar listar ambientes
+          console.warn("Falha ao listar ambientes:", e);
+        }
+
         const [medicoesTemp, medicoesUmidade] = await Promise.all([
-          buscarTemperaturas(),
-          buscarUmidade(),
+          buscarTemperaturas(selectedAmbiente),
+          buscarUmidade(selectedAmbiente),
         ]);
 
         const tempConvertidos = medicoesTemp.map(converterMedicaoParaTemperatureReading);
@@ -68,7 +83,7 @@ export default function DashboardPage() {
     carregarDados();
     const interval = setInterval(carregarDados, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [selectedAmbiente]);
 
   if (loading && temperatureData.length === 0 && umidadeData.length === 0) {
     return (
@@ -99,6 +114,20 @@ export default function DashboardPage() {
       {/* 🎛️ Filtro de período */}
       <div className="flex flex-wrap gap-4 items-center">
         <PeriodoFilter value={periodo} onChange={setPeriodo} />
+
+        <div>
+          <label className="sr-only">Ambiente</label>
+          <select
+            value={selectedAmbiente || ''}
+            onChange={(e) => setSelectedAmbiente(e.target.value || undefined)}
+            className="border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-3 py-2"
+          >
+            <option value="">Todos os Ambientes</option>
+            {environments.map(env => (
+              <option key={env.id} value={env.id}>{env.nome}</option>
+            ))}
+          </select>
+        </div>
 
         <DatePicker
           periodo={periodo}

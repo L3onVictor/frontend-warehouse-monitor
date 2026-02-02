@@ -12,7 +12,6 @@ export function PeriodoFilter({ value, onChange }: Props) {
   const opcoes: { label: string; value: PeriodoFiltro }[] = [
     { label: "Ano", value: "ano" },
     { label: "Mês", value: "mes" },
-    { label: "Semana", value: "semana" },
     { label: "Dia", value: "dia" },
   ];
 

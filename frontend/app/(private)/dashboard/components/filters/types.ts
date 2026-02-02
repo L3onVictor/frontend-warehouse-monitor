@@ -1,1 +1,1 @@
-export type PeriodoFiltro = 'ano' | 'mes' | 'semana' | 'dia';
+export type PeriodoFiltro = 'ano' | 'mes' | 'dia';

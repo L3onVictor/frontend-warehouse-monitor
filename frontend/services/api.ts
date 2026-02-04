@@ -1,4 +1,32 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
+export async function apiFetch(
+  path: string,
+  options: RequestInit = {}
+) {
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    credentials: "include",
+    headers:{
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    }
+  });
+  
+if (response.status === 401) {
+    // Exemplo:
+    // window.location.href = "/login";
+    throw new Error("Não autorizado");
+  }
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+    throw new Error(error?.message || response.statusText);
+  }
+
+  return response;
+};
+
 
 export interface Medicao {
   id: string;
@@ -44,11 +72,8 @@ export async function buscarMedicoes(
       delete body.endData;
     }
 
-    const response = await fetch(`${API_URL}/medicao/buscar`, {
+    const response = await apiFetch(`/medicao/buscar`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify(body),
     });
 
@@ -89,21 +114,26 @@ export async function buscarUltimaMedicao(
   tipo: "temperatura" | "umidade"
 ): Promise<Medicao | null> {
   try {
+    // Validação básica do ID
+    if (!dispositivoId) {
+      console.warn(`ID de dispositivo vazio para tipo ${tipo}`);
+      return null;
+    }
+
     const response = await fetch(`${API_URL}/medicao/buscar-ultima`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        dispositivoId,
-        tipo,
-      }),
+      body: JSON.stringify({ dispositivoId, tipo }),
     });
 
+    if (response.status === 404) return null;
+
     if (!response.ok) {
-      // If 404 or other error, just return null for now to avoid spamming console if no data exists yet
-      if (response.status === 404) return null;
-      // throw new Error(`Erro ao buscar última medição: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      console.warn(`Erro ao buscar última medição para ${dispositivoId}:`, errorData);
       return null;
     }
 
@@ -112,6 +142,52 @@ export async function buscarUltimaMedicao(
   } catch (error) {
     console.error(`Erro ao buscar última medição (${tipo}):`, error);
     return null;
+  }
+}
+
+// ===== AUTENTICAÇÃO / USUÁRIO =====
+
+export async function logar(email: string, senha: string): Promise<void> {
+  try {
+    const response = await apiFetch('/autenticacao', {
+      method: 'POST',
+      body: JSON.stringify({ email, senha }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => null)
+      throw new Error(error?.message || `Erro ao autenticar: ${response.statusText}`)
+    }
+
+    return
+  } catch (error) {
+    console.error('Erro ao logar:', error)
+    throw error
+  }
+}
+
+export async function criarUsuario(data: {
+  nome: string
+  email: string
+  senha: string
+  receberEmail: boolean
+}): Promise<{ id: string }> {
+  try {
+    const response = await fetch(`${API_URL}/usuario`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => null)
+      throw new Error(error?.message || `Erro ao criar usuário: ${response.statusText}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Erro ao criar usuário:', error)
+    throw error
   }
 }
 
@@ -130,16 +206,9 @@ export async function cadastrarDispositivo(
   ambienteId?: string
 ): Promise<Dispositivo> {
   try {
-    const response = await fetch(`${API_URL}/dispositivo`, {
+    const response = await apiFetch(`/dispositivo`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id,
-        nome,
-        ambienteId,
-      }),
+      body: JSON.stringify({ id, nome, ambienteId }),
     });
 
     if (!response.ok) {
@@ -157,11 +226,8 @@ export async function cadastrarDispositivo(
 
 export async function listarDispositivos(): Promise<Dispositivo[]> {
   try {
-    const response = await fetch(`${API_URL}/dispositivo`, {
+    const response = await apiFetch(`/dispositivo`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
       cache: "no-store",
     });
 
@@ -197,15 +263,9 @@ export async function atualizarDispositivo(
   ambienteId?: string
 ): Promise<Dispositivo> {
   try {
-    const response = await fetch(`${API_URL}/dispositivo/${id}`, {
+    const response = await apiFetch(`/dispositivo/${id}`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nome,
-        ambienteId,
-      }),
+      body: JSON.stringify({ nome, ambienteId }),
     });
 
     if (!response.ok) {
@@ -223,11 +283,8 @@ export async function atualizarDispositivo(
 
 export async function removerDispositivo(id: string): Promise<void> {
   try {
-    const response = await fetch(`${API_URL}/dispositivo/${id}`, {
+    const response = await apiFetch(`/dispositivo/${id}`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
 
     if (!response.ok) {
@@ -262,11 +319,8 @@ export interface AtualizarAmbienteData {
 
 export async function listarAmbientes(): Promise<Ambiente[]> {
   try {
-    const response = await fetch(`${API_URL}/ambiente`, {
+    const response = await apiFetch(`/ambiente`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
       cache: "no-store",
     });
 
@@ -286,11 +340,8 @@ export async function listarAmbientes(): Promise<Ambiente[]> {
 
 export async function criarAmbiente(data: CriarAmbienteData): Promise<{ id: string }> {
   try {
-    const response = await fetch(`${API_URL}/ambiente`, {
+    const response = await apiFetch(`/ambiente`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify(data),
     });
 
@@ -311,11 +362,8 @@ export async function atualizarAmbiente(
   data: AtualizarAmbienteData
 ): Promise<{ id: string }> {
   try {
-    const response = await fetch(`${API_URL}/ambiente/${id}`, {
+    const response = await apiFetch(`/ambiente/${id}`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify(data),
     });
 
@@ -333,11 +381,8 @@ export async function atualizarAmbiente(
 
 export async function removerAmbiente(id: string): Promise<void> {
   try {
-    const response = await fetch(`${API_URL}/ambiente/${id}`, {
+    const response = await apiFetch(`/ambiente/${id}`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
 
     if (!response.ok) {

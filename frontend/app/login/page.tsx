@@ -3,18 +3,41 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { logar } from "@/services/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { setUser } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    // Simulate auth delay
-    setTimeout(() => {
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const email = formData.get("email") as string;
+      const senha = formData.get("password") as string;
+
+      await logar(email, senha);
+      
+      // Salvar usuário no contexto
+      setUser({
+        id: email,
+        nome: email.split("@")[0],
+        email,
+        receberEmail: true,
+      });
+
       router.push("/dashboard");
-    }, 1500);
+    } catch (err: any) {
+      setError(err.message || "Erro ao fazer login. Verifique suas credenciais.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,7 +65,8 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   required
-                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  disabled={loading}
+                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm disabled:opacity-50"
                   placeholder="seu@email.com"
                 />
               </div>
@@ -59,7 +83,8 @@ export default function LoginPage() {
                   type="password"
                   autoComplete="current-password"
                   required
-                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  disabled={loading}
+                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm disabled:opacity-50"
                   placeholder="••••••••"
                 />
               </div>
@@ -85,6 +110,16 @@ export default function LoginPage() {
               </Link>
             </div>
           </div>
+
+          {error && (
+            <div className="rounded-md bg-red-50 p-4 dark:bg-red-900/30">
+              <div className="flex">
+                <div className="text-sm text-red-700 dark:text-red-200">
+                  {error}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div>
             <button

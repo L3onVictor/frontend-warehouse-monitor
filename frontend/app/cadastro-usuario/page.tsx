@@ -3,32 +3,56 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { criarUsuario } from "@/services/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function CadastroPage() {
   const router = useRouter();
+  const { setUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    const password = formData.get("password") as string;
-    const confirmPassword = formData.get("confirmPassword") as string;
+    try {
+      const formData = new FormData(e.currentTarget);
+      const password = formData.get("password") as string;
+      const confirmPassword = formData.get("confirmPassword") as string;
 
-    if (password !== confirmPassword) {
-      setError("As senhas não coincidem.");
-      setLoading(false);
-      return;
-    }
+      if (password !== confirmPassword) {
+        setError("As senhas não coincidem.");
+        setLoading(false);
+        return;
+      }
 
-    // Simulate API call
-    setTimeout(() => {
-      // Mock success: redirect to login or dashboard
+      const nome = formData.get("name") as string;
+      const email = formData.get("email") as string;
+      const receberEmail = (formData.get("receberEmail") as string) === "on";
+
+      const result = await criarUsuario({
+        nome,
+        email,
+        senha: password,
+        receberEmail,
+      });
+
+      // Salvar usuário no contexto
+      setUser({
+        id: result.id,
+        nome,
+        email,
+        receberEmail,
+      });
+
       router.push("/login");
-    }, 1500);
+    } catch (err: any) {
+      setError(err.message || "Erro ao criar conta. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -56,7 +80,8 @@ export default function CadastroPage() {
                   name="name"
                   type="text"
                   required
-                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  disabled={loading}
+                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm disabled:opacity-50"
                   placeholder="Seu Nome"
                 />
               </div>
@@ -74,41 +99,9 @@ export default function CadastroPage() {
                   type="email"
                   autoComplete="email"
                   required
-                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  disabled={loading}
+                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm disabled:opacity-50"
                   placeholder="seu@email.com"
-                />
-              </div>
-            </div>
-
-            {/* Empresa */}
-            <div>
-              <label htmlFor="company" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                Empresa
-              </label>
-              <div className="mt-1">
-                <input
-                  id="company"
-                  name="company"
-                  type="text"
-                  required
-                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm"
-                  placeholder="Sua Empresa"
-                />
-              </div>
-            </div>
-
-            {/* Cargo */}
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                Cargo
-              </label>
-              <div className="mt-1">
-                <input
-                  id="role"
-                  name="role"
-                  type="text"
-                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm"
-                  placeholder="Ex: Gerente"
                 />
               </div>
             </div>
@@ -125,7 +118,8 @@ export default function CadastroPage() {
                   type="password"
                   autoComplete="new-password"
                   required
-                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  disabled={loading}
+                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm disabled:opacity-50"
                   placeholder="••••••••"
                 />
               </div>
@@ -142,10 +136,28 @@ export default function CadastroPage() {
                   name="confirmPassword"
                   type="password"
                   required
-                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  disabled={loading}
+                  className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm disabled:opacity-50"
                   placeholder="••••••••"
                 />
               </div>
+            </div>
+
+            {/* Receber Email de Alertas */}
+            <div className="md:col-span-2">
+              <label className="flex items-center">
+                <input
+                  id="receberEmail"
+                  name="receberEmail"
+                  type="checkbox"
+                  disabled={loading}
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 disabled:opacity-50"
+                  defaultChecked={true}
+                />
+                <span className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+                  Desejo receber notificações de alertas por email
+                </span>
+              </label>
             </div>
           </div>
 

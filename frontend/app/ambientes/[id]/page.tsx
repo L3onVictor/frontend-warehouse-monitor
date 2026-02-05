@@ -116,6 +116,36 @@ export default function EnvironmentDetailsPage({ params }: { params: Promise<{ i
                         </p>
                     </div>
 
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Range de Temperatura</h3>
+                            <div className="space-y-2 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600 dark:text-gray-300">Mínima:</span>
+                                    <span className="text-sm font-semibold text-gray-900 dark:text-white">{environment.temperatura_minima}°C</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600 dark:text-gray-300">Máxima:</span>
+                                    <span className="text-sm font-semibold text-gray-900 dark:text-white">{environment.temperatura_maxima}°C</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Range de Umidade</h3>
+                            <div className="space-y-2 bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600 dark:text-gray-300">Mínima:</span>
+                                    <span className="text-sm font-semibold text-gray-900 dark:text-white">{environment.umidade_minima}%</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600 dark:text-gray-300">Máxima:</span>
+                                    <span className="text-sm font-semibold text-gray-900 dark:text-white">{environment.umidade_maxima}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
                         <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Dispositivos Vinculados</h3>
                         <div className="mt-2 flex items-center gap-4">

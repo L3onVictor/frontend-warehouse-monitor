@@ -191,6 +191,32 @@ export async function criarUsuario(data: {
   }
 }
 
+export async function atualizarUsuario(
+  id: string,
+  data: {
+    nome?: string
+    email?: string
+    receberEmail?: boolean
+  }
+): Promise<{ id: string }> {
+  try {
+    const response = await apiFetch(`/usuario/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => null)
+      throw new Error(error?.message || `Erro ao atualizar usuário: ${response.statusText}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Erro ao atualizar usuário:', error)
+    throw error
+  }
+}
+
 
 // ===== DISPOSITIVOS =====
 
@@ -304,17 +330,29 @@ export interface Ambiente {
   nome: string;
   tipo: "frio" | "arejado";
   descricao?: string;
+  temperatura_minima: number;
+  temperatura_maxima: number;
+  umidade_minima: number;
+  umidade_maxima: number;
 }
 
 export interface CriarAmbienteData {
   nome: string;
   tipo: "frio" | "arejado";
   descricao?: string;
+  temperatura_minima: number;
+  temperatura_maxima: number;
+  umidade_minima: number;
+  umidade_maxima: number;
 }
 
 export interface AtualizarAmbienteData {
   nome?: string;
   descricao?: string;
+  temperatura_minima?: number;
+  temperatura_maxima?: number;
+  umidade_minima?: number;
+  umidade_maxima?: number;
 }
 
 export async function listarAmbientes(): Promise<Ambiente[]> {

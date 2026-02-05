@@ -35,11 +35,19 @@ export default function EditEnvironmentPage({ params }: { params: Promise<{ id: 
         const formData = new FormData(e.currentTarget);
         const nome = formData.get("name") as string;
         const descricao = formData.get("description") as string;
+        const temperatura_minima = formData.get("temperatura_minima") ? parseFloat(formData.get("temperatura_minima") as string) : undefined;
+        const temperatura_maxima = formData.get("temperatura_maxima") ? parseFloat(formData.get("temperatura_maxima") as string) : undefined;
+        const umidade_minima = formData.get("umidade_minima") ? parseFloat(formData.get("umidade_minima") as string) : undefined;
+        const umidade_maxima = formData.get("umidade_maxima") ? parseFloat(formData.get("umidade_maxima") as string) : undefined;
 
         try {
             await atualizarAmbiente(resolvedParams.id, {
                 nome,
                 descricao,
+                temperatura_minima,
+                temperatura_maxima,
+                umidade_minima,
+                umidade_maxima,
             });
             router.push(`/ambientes/${resolvedParams.id}`);
         } catch (error) {
@@ -104,6 +112,70 @@ export default function EditEnvironmentPage({ params }: { params: Promise<{ id: 
                             defaultValue={environment.descricao}
                             className="mt-1 block w-full rounded-md border border-gray-300 dark:border-slate-600 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-slate-700 dark:text-white sm:text-sm"
                         />
+                    </div>
+
+                    {/* Range de Temperatura */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label htmlFor="temperatura_minima" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                                Temperatura Mínima (°C)
+                            </label>
+                            <input
+                                type="number"
+                                name="temperatura_minima"
+                                id="temperatura_minima"
+                                step="0.1"
+                                defaultValue={environment.temperatura_minima}
+                                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-slate-600 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-slate-700 dark:text-white sm:text-sm"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="temperatura_maxima" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                                Temperatura Máxima (°C)
+                            </label>
+                            <input
+                                type="number"
+                                name="temperatura_maxima"
+                                id="temperatura_maxima"
+                                step="0.1"
+                                defaultValue={environment.temperatura_maxima}
+                                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-slate-600 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-slate-700 dark:text-white sm:text-sm"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Range de Umidade */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label htmlFor="umidade_minima" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                                Umidade Mínima (%)
+                            </label>
+                            <input
+                                type="number"
+                                name="umidade_minima"
+                                id="umidade_minima"
+                                step="0.1"
+                                min="0"
+                                max="100"
+                                defaultValue={environment.umidade_minima}
+                                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-slate-600 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-slate-700 dark:text-white sm:text-sm"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="umidade_maxima" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                                Umidade Máxima (%)
+                            </label>
+                            <input
+                                type="number"
+                                name="umidade_maxima"
+                                id="umidade_maxima"
+                                step="0.1"
+                                min="0"
+                                max="100"
+                                defaultValue={environment.umidade_maxima}
+                                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-slate-600 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-slate-700 dark:text-white sm:text-sm"
+                            />
+                        </div>
                     </div>
                 </div>
 

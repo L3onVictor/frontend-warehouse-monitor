@@ -2,12 +2,21 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function NavMenu() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, isLoading, setUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const handleLogout = () => {
+    setUser(null);
+    setIsProfileOpen(false);
+    router.push('/login');
+  }
 
   return (
     <>
@@ -97,63 +106,72 @@ export function NavMenu() {
 
         {/* Footer / User Profile */}
         <div className="p-4 border-t border-slate-800 relative">
-          <div className="flex items-center justify-between group">
-            <div className="flex items-center gap-3 px-2">
-              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold ring-2 ring-slate-700">
-                L
+          {/* If still loading auth state, show placeholder */}
+          {isLoading ? (
+            <div className="h-10 w-full animate-pulse bg-slate-800 rounded" />
+          ) : user ? (
+            <div className="flex items-center justify-between group">
+              <div className="flex items-center gap-3 px-2">
+                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold ring-2 ring-slate-700">
+                  {user.nome ? user.nome.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="text-sm">
+                  <p className="font-medium text-slate-200">{user.nome}</p>
+                  <p className="text-xs text-slate-500">{user.email}</p>
+                </div>
               </div>
-              <div className="text-sm">
-                <p className="font-medium text-slate-200">Leonardo</p>
-                <p className="text-xs text-slate-500">Admin</p>
-              </div>
-            </div>
 
-            <div className="relative">
-              <button
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white transition-colors focus:outline-none"
-              >
-                <svg className={`w-5 h-5 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white transition-colors focus:outline-none"
+                >
+                  <svg className={`w-5 h-5 transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
 
-              {/* Dropdown Menu */}
-              {isProfileOpen && (
-                <>
-                  {/* Backdrop to close on click outside */}
-                  <div className="fixed inset-0 z-10" onClick={() => setIsProfileOpen(false)}></div>
+                {/* Dropdown Menu */}
+                {isProfileOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setIsProfileOpen(false)}></div>
 
-                  <div className="absolute bottom-10 right-0 w-48 bg-slate-800 rounded-lg shadow-xl border border-slate-700 z-20 overflow-hidden mb-2">
-                    <div className="py-1">
-                      <Link
-                        href="/perfil"
-                        className="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white"
-                        onClick={() => setIsProfileOpen(false)}
-                      >
-                        Ver Perfil
-                      </Link>
-                      <Link
-                        href="/configuracoes"
-                        className="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white"
-                        onClick={() => setIsProfileOpen(false)}
-                      >
-                        Configurações
-                      </Link>
-                      <div className="border-t border-slate-700 my-1"></div>
-                      <Link
-                        href="/login"
-                        className="block px-4 py-2 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300"
-                        onClick={() => setIsProfileOpen(false)}
-                      >
-                        Sair
-                      </Link>
+                    <div className="absolute bottom-10 right-0 w-48 bg-slate-800 rounded-lg shadow-xl border border-slate-700 z-20 overflow-hidden mb-2">
+                      <div className="py-1">
+                        <Link
+                          href="/perfil"
+                          className="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white"
+                          onClick={() => setIsProfileOpen(false)}
+                        >
+                          Ver Perfil
+                        </Link>
+                        <Link
+                          href="/configuracoes"
+                          className="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white"
+                          onClick={() => setIsProfileOpen(false)}
+                        >
+                          Configurações
+                        </Link>
+                        <div className="border-t border-slate-700 my-1"></div>
+                        <button
+                          onClick={handleLogout}
+                          className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300"
+                        >
+                          Sair
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </>
-              )}
+                  </>
+                )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <Link href="/login" className="px-3 py-1.5 text-sm text-blue-400 bg-slate-800 rounded-md hover:bg-slate-700">
+                Entrar
+              </Link>
+            </div>
+          )}
         </div>
       </aside>
     </>

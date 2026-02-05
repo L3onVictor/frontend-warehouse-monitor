@@ -76,8 +76,6 @@ export default function ConfiguracaoAlertasPage() {
         setSavingEnv(id);
         try {
             await atualizarAmbiente(id, {
-                nome: toSave.nome,
-                descricao: toSave.descricao,
                 temperatura_minima: Number(toSave.temperatura_minima),
                 temperatura_maxima: Number(toSave.temperatura_maxima),
                 umidade_minima: Number(toSave.umidade_minima),

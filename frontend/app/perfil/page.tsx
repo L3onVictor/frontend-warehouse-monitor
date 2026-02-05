@@ -16,49 +16,49 @@ export default function PerfilPage() {
     const [email, setEmail] = useState(user?.email || "");
 
     const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSuccess(false);
-    setLoading(true);
+        e.preventDefault();
+        setError("");
+        setSuccess(false);
+        setLoading(true);
 
-    try {
-        if (!user?.id) {
-        throw new Error("Usuário inválido");
+        try {
+            if (!user?.id) {
+                throw new Error("Usuário inválido");
+            }
+
+            const payload: {
+                nome?: string;
+                email?: string;
+            } = {}
+
+            if (nome.trim() && nome !== user.nome) {
+                payload.nome = nome.trim();
+            }
+
+            if (email.trim() && email !== user.email) {
+                payload.email = email.trim();
+            }
+
+            // nada mudou
+            if (Object.keys(payload).length === 0) {
+                throw new Error("Nenhuma alteração foi feita");
+            }
+
+            await atualizarUsuario(user.id, payload);
+
+            // Atualiza contexto local
+            setUser({ ...user, ...payload } as any);
+
+            setSuccess(true);
+            setTimeout(() => {
+                router.push("/configuracoes");
+            }, 1500);
+        } catch (err: any) {
+            setError(err.message || "Erro ao salvar perfil");
+            console.error(err);
+        } finally {
+            setLoading(false);
         }
-
-        const payload: {
-        nome?: string;
-        email?: string;
-        } = {}
-
-        if (nome.trim() && nome !== user.nome) {
-        payload.nome = nome.trim();
-        }
-
-        if (email.trim() && email !== user.email) {
-        payload.email = email.trim();
-        }
-
-        // nada mudou
-        if (Object.keys(payload).length === 0) {
-        throw new Error("Nenhuma alteração foi feita");
-        }
-
-        await atualizarUsuario(user.id, payload);
-
-        // Atualiza contexto local
-        setUser({ ...user, ...payload } as any);
-
-        setSuccess(true);
-        setTimeout(() => {
-        router.push("/configuracoes");
-        }, 1500);
-    } catch (err: any) {
-        setError(err.message || "Erro ao salvar perfil");
-        console.error(err);
-    } finally {
-        setLoading(false);
-    }
     };
 
     if (!user) {
@@ -82,11 +82,11 @@ export default function PerfilPage() {
             <div className="max-w-2xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
-                    <Link href="/configuracoes" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 mb-4">
+                    <Link href="/dashboard" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 mb-4">
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
-                        Voltar para Configurações
+                        Voltar para Dashboard
                     </Link>
 
                     <div className="flex items-center gap-4 mb-2">

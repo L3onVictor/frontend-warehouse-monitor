@@ -1,69 +1,57 @@
 export function AboutSection() {
     return (
-        <section id="sobre" className="py-24 bg-slate-100">
-            <div className="container mx-auto px-4 md:px-8">
-                <div className="flex flex-col md:flex-row items-center gap-16">
+        <section id="sobre" className="py-20 bg-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center max-w-3xl mx-auto mb-16">
+                    <h2 className="text-sm font-bold text-blue-600 uppercase tracking-widest mb-3">Quem Somos</h2>
+                    <h3 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">Líderes em Monitoramento de Precisão</h3>
+                    <p className="text-lg text-slate-600 leading-relaxed">
+                        A <span className="font-semibold text-slate-800">Warehouse Monitor</span> nasceu da necessidade crítica de garantir a integridade de produtos sensíveis em escalas industriais. Com tecnologia proprietária e foco em dados acionáveis, transformamos a gestão de estoques de passiva para proativa.
+                    </p>
+                </div>
 
-                    {/* Text Content */}
-                    <div className="flex-1 space-y-8">
-                        <h2 className="text-3xl font-bold text-slate-800">
-                            Tecnologia e Segurança para <br />
-                            <span className="text-blue-700">Seu Patrimônio</span>
-                        </h2>
-                        <p className="text-lg text-slate-600 leading-relaxed">
-                            Nosso sistema utiliza equipamentos de precisão para coletar dados críticos de seus ambientes.
-                            Seja um frigorífico industrial ou um armazém de medicamentos,
-                            garantimos que você saiba exatamente o que está acontecendo.
-                        </p>
-
-                        <ul className="space-y-4">
-                            {[
-                                "Monitoramento contínuo (24/7)",
-                                "Alertas via e-mail em tempo real",
-                                "Histórico seguro para auditorias",
-                                "Acesso simplificado de qualquer lugar"
-                            ].map((item, i) => (
-                                <li key={i} className="flex items-center gap-3">
-                                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                    </div>
-                                    <span className="text-slate-700 font-medium">{item}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Visual Content */}
-                    <div className="flex-1 w-full max-w-lg">
-                        <div className="bg-white p-8 rounded-xl shadow-md border border-gray-200">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-orange-50 p-6 rounded-lg border border-orange-100">
-                                    <h4 className="text-orange-700 font-bold text-sm uppercase mb-2">Temperatura</h4>
-                                    <div className="text-3xl font-bold text-slate-800">-18.2°C</div>
-                                    <div className="text-sm text-slate-500 mt-1">Status: Estável</div>
-                                </div>
-                                <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
-                                    <h4 className="text-blue-700 font-bold text-sm uppercase mb-2">Umidade</h4>
-                                    <div className="text-3xl font-bold text-slate-800">45%</div>
-                                    <div className="text-sm text-slate-500 mt-1">Status: Ideal</div>
-                                </div>
-                                <div className="col-span-2 bg-gray-50 p-6 rounded-lg border border-gray-100 flex items-center justify-between">
-                                    <div>
-                                        <h4 className="font-semibold text-slate-800">Sistema Operante</h4>
-                                        <p className="text-sm text-green-700 font-medium flex items-center gap-2 mt-1">
-                                            <span className="w-2 h-2 rounded-full bg-green-600"></span> Conectado
-                                        </p>
-                                    </div>
-                                    <div className="text-gray-400">
-                                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    </div>
-                                </div>
+                <div className="grid md:grid-cols-3 gap-8">
+                    {[
+                        {
+                            title: "Missão",
+                            desc: "Proporcionar segurança absoluta e zero desperdício para cadeias de suprimentos globais.",
+                            icon: (
+                                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            )
+                        },
+                        {
+                            title: "Visão",
+                            desc: "Ser a referência mundial em IoT industrial para controle climático de ambientes críticos.",
+                            icon: (
+                                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            )
+                        },
+                        {
+                            title: "Valores",
+                            desc: "Precisão técnica, transparência total e compromisso inegociável com a qualidade.",
+                            icon: (
+                                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                            )
+                        }
+                    ].map((item, idx) => (
+                        <div key={idx} className="bg-slate-50 rounded-xl p-8 border border-slate-100 hover:shadow-lg transition-shadow duration-300 group">
+                            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-6 shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform duration-300">
+                                {item.icon}
                             </div>
+                            <h4 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h4>
+                            <p className="text-slate-600 leading-relaxed">
+                                {item.desc}
+                            </p>
                         </div>
-                    </div>
-
+                    ))}
                 </div>
             </div>
         </section>
-    );
+    )
 }

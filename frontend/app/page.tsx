@@ -7,15 +7,17 @@ import { ContactSection } from "@/components/landing/ContactSection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 
 export default function Home() {
-  return (
-    <div className="scroll-smooth">
-      <LandingNavBar />
-      <HeroSection />
-      <PartnersSection />
-      <AboutSection />
-      <BenefitsSection />
-      <ContactSection />
-      <LandingFooter />
-    </div>
-  );
+    return (
+        <div className="min-h-screen font-sans">
+            <LandingNavBar />
+            <main>
+                <HeroSection />
+                <AboutSection />
+                <BenefitsSection />
+                <PartnersSection />
+                <ContactSection />
+            </main>
+            <LandingFooter />
+        </div>
+    );
 }

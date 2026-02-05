@@ -2,111 +2,83 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
 
 export function LandingNavBar() {
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const { user } = useAuth();
+    const [scrolled, setScrolled] = useState(false);
 
-    const navLinks = [
-        { name: "Início", href: "#inicio" },
-        { name: "Sobre", href: "#sobre" },
-        { name: "Benefícios", href: "#beneficios" },
-        { name: "Parceiros", href: "#parceiros" },
-        { name: "Contato", href: "#contato" },
-    ];
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 20);
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+        e.preventDefault();
+        const element = document.getElementById(id);
+        if (element) {
+            const offset = 80; // Navbar height
+            const bodyRect = document.body.getBoundingClientRect().top;
+            const elementRect = element.getBoundingClientRect().top;
+            const elementPosition = elementRect - bodyRect;
+            const offsetPosition = elementPosition - offset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: "smooth"
+            });
+        }
+    };
 
     return (
-        <nav className="fixed top-0 left-0 w-full z-50 bg-slate-50 border-b border-gray-200">
-            <div className="container mx-auto px-4 md:px-8 flex items-center justify-between h-20">
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-slate-900/95 backdrop-blur-md shadow-md py-4" : "bg-transparent py-6"
+            }`}>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                 {/* Logo */}
-                <Link href="/" className="text-2xl font-bold text-blue-900">
-                    WarehouseMonitor
+                <Link href="/" className="flex items-center gap-2 group">
+                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-900/20 group-hover:bg-blue-500 transition-colors">
+                        W
+                    </div>
+                    <span className="text-xl font-bold text-white tracking-wide">
+                        Warehouse<span className="text-blue-400">Monitor</span>
+                    </span>
                 </Link>
 
                 {/* Desktop Menu */}
                 <div className="hidden md:flex items-center gap-8">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.name}
-                            href={link.href}
-                            className="text-base font-medium text-gray-600 hover:text-blue-700 transition-colors"
+                    {[
+                        { label: "Início", id: "home" },
+                        { label: "Sobre", id: "sobre" },
+                        { label: "Benefícios", id: "beneficios" },
+                        { label: "Parceiros", id: "parceiros" },
+                        { label: "Contato", id: "contato" },
+                    ].map((item) => (
+                        <a
+                            key={item.id}
+                            href={`#${item.id}`}
+                            onClick={(e) => scrollToSection(e, item.id)}
+                            className="text-sm font-medium text-slate-300 hover:text-white transition-colors uppercase tracking-wider"
                         >
-                            {link.name}
-                        </Link>
+                            {item.label}
+                        </a>
                     ))}
+
+                    <Link
+                        href="/login"
+                        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                    >
+                        Área do Cliente
+                    </Link>
                 </div>
 
-                {/* CTA Button */}
-                <div className="hidden md:block">
-                    {user ? (
-                        <Link
-                            href="/dashboard"
-                            className="px-6 py-2 rounded-lg bg-blue-700 text-white font-medium hover:bg-blue-800 transition"
-                        >
-                            Painel
-                        </Link>
-                    ) : (
-                        <Link
-                            href="/login"
-                            className="px-6 py-2 rounded-lg bg-blue-700 text-white font-medium hover:bg-blue-800 transition"
-                        >
-                            Entrar
-                        </Link>
-                    )}
-                </div>
-
-                {/* Mobile Toggle */}
-                <button
-                    className="md:hidden p-2 text-gray-600"
-                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                >
-                    {mobileMenuOpen ? (
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    ) : (
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    )}
+                {/* Mobile Menu Button (simplified) */}
+                <button className="md:hidden text-white p-2">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
                 </button>
             </div>
-
-            {/* Mobile Menu */}
-            {mobileMenuOpen && (
-                <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-gray-100 shadow-xl p-4 flex flex-col gap-4">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.name}
-                            href={link.href}
-                            className="px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium"
-                            onClick={() => setMobileMenuOpen(false)}
-                        >
-                            {link.name}
-                        </Link>
-                    ))}
-                    <div className="pt-2 border-t border-gray-100">
-                        {user ? (
-                            <Link
-                                href="/dashboard"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="block w-full text-center px-6 py-3 rounded-lg bg-blue-700 text-white font-medium hover:bg-blue-800 transition"
-                            >
-                                Acessar Painel
-                            </Link>
-                        ) : (
-                            <Link
-                                href="/login"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="block w-full text-center px-6 py-3 rounded-lg bg-blue-700 text-white font-medium hover:bg-blue-800 transition"
-                            >
-                                Entrar
-                            </Link>
-                        )}
-                    </div>
-                </div>
-            )}
         </nav>
     );
 }

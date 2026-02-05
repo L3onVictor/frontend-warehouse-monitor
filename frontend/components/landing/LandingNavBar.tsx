@@ -5,17 +5,8 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function LandingNavBar() {
-    const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { user } = useAuth();
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
-        };
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
 
     const navLinks = [
         { name: "Início", href: "#inicio" },
@@ -26,15 +17,10 @@ export function LandingNavBar() {
     ];
 
     return (
-        <nav
-            className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled
-                    ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm py-4"
-                    : "bg-transparent py-6"
-                }`}
-        >
-            <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
+        <nav className="fixed top-0 left-0 w-full z-50 bg-slate-50 border-b border-gray-200">
+            <div className="container mx-auto px-4 md:px-8 flex items-center justify-between h-20">
                 {/* Logo */}
-                <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <Link href="/" className="text-2xl font-bold text-blue-900">
                     WarehouseMonitor
                 </Link>
 
@@ -44,7 +30,7 @@ export function LandingNavBar() {
                         <Link
                             key={link.name}
                             href={link.href}
-                            className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            className="text-base font-medium text-gray-600 hover:text-blue-700 transition-colors"
                         >
                             {link.name}
                         </Link>
@@ -56,23 +42,23 @@ export function LandingNavBar() {
                     {user ? (
                         <Link
                             href="/dashboard"
-                            className="px-6 py-2.5 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition shadow-lg shadow-blue-600/20"
+                            className="px-6 py-2 rounded-lg bg-blue-700 text-white font-medium hover:bg-blue-800 transition"
                         >
                             Painel
                         </Link>
                     ) : (
                         <Link
                             href="/login"
-                            className="px-6 py-2.5 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition shadow-lg shadow-blue-600/20"
+                            className="px-6 py-2 rounded-lg bg-blue-700 text-white font-medium hover:bg-blue-800 transition"
                         >
-                            Login
+                            Entrar
                         </Link>
                     )}
                 </div>
 
                 {/* Mobile Toggle */}
                 <button
-                    className="md:hidden p-2 text-gray-700 dark:text-gray-200"
+                    className="md:hidden p-2 text-gray-600"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 >
                     {mobileMenuOpen ? (
@@ -89,23 +75,23 @@ export function LandingNavBar() {
 
             {/* Mobile Menu */}
             {mobileMenuOpen && (
-                <div className="md:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 shadow-xl p-4 flex flex-col gap-4 animate-in slide-in-from-top-2">
+                <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-gray-100 shadow-xl p-4 flex flex-col gap-4">
                     {navLinks.map((link) => (
                         <Link
                             key={link.name}
                             href={link.href}
-                            className="px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 font-medium"
+                            className="px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium"
                             onClick={() => setMobileMenuOpen(false)}
                         >
                             {link.name}
                         </Link>
                     ))}
-                    <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
+                    <div className="pt-2 border-t border-gray-100">
                         {user ? (
                             <Link
                                 href="/dashboard"
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="block w-full text-center px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 active:bg-blue-800 transition"
+                                className="block w-full text-center px-6 py-3 rounded-lg bg-blue-700 text-white font-medium hover:bg-blue-800 transition"
                             >
                                 Acessar Painel
                             </Link>
@@ -113,9 +99,9 @@ export function LandingNavBar() {
                             <Link
                                 href="/login"
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="block w-full text-center px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 active:bg-blue-800 transition"
+                                className="block w-full text-center px-6 py-3 rounded-lg bg-blue-700 text-white font-medium hover:bg-blue-800 transition"
                             >
-                                Fazer Login
+                                Entrar
                             </Link>
                         )}
                     </div>

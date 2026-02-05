@@ -10,7 +10,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         pathname === "/login" ||
         pathname === "/cadastro-usuario" ||
         pathname === "/esqueci-senha" ||
-        pathname === "/redefinir-senha";
+        pathname === "/redefinir-senha" ||
+        pathname === "/";
 
     if (isPublicPage) {
         return <main className="min-h-screen bg-white dark:bg-gray-900">{children}</main>;

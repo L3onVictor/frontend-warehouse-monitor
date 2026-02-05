@@ -15,7 +15,7 @@ export function NavMenu() {
   const handleLogout = () => {
     setUser(null);
     setIsProfileOpen(false);
-    router.push('/login');
+    router.push('/');
   }
 
   return (

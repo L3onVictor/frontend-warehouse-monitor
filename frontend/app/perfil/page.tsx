@@ -26,11 +26,10 @@ export default function PerfilPage() {
         throw new Error("Usuário inválido");
         }
 
-        // monta payload LIMPO
         const payload: {
         nome?: string;
         email?: string;
-        } = {};
+        } = {}
 
         if (nome.trim() && nome !== user.nome) {
         payload.nome = nome.trim();

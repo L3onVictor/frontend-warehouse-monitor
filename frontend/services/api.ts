@@ -200,7 +200,7 @@ export async function atualizarUsuario(
   }
 ): Promise<{ id: string }> {
   try {
-    const response = await apiFetch(`/usuario/${id}`, {
+    const response = await apiFetch(`/usuario`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     })

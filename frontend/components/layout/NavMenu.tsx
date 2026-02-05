@@ -69,7 +69,10 @@ export function NavMenu() {
               <Link
                 href="/dashboard"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 transition-all text-slate-300 hover:text-white"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${pathname === "/dashboard"
+                    ? "bg-slate-800 text-white border-l-4 border-blue-500"
+                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                  }`}
               >
                 <span>Dashboard</span>
               </Link>
@@ -78,7 +81,10 @@ export function NavMenu() {
               <Link
                 href="/ambientes"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 transition-all text-slate-300 hover:text-white"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${pathname?.startsWith("/ambientes")
+                    ? "bg-slate-800 text-white border-l-4 border-blue-500"
+                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                  }`}
               >
                 <span>Ambientes</span>
               </Link>
@@ -87,7 +93,10 @@ export function NavMenu() {
               <Link
                 href="/dispositivos"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 transition-all text-slate-300 hover:text-white"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${pathname?.startsWith("/dispositivos")
+                    ? "bg-slate-800 text-white border-l-4 border-blue-500"
+                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                  }`}
               >
                 <span>Dispositivos</span>
               </Link>
@@ -96,7 +105,10 @@ export function NavMenu() {
               <Link
                 href="/configuracao-alertas"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 transition-all text-slate-300 hover:text-white"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${pathname?.startsWith("/configuracao-alertas")
+                    ? "bg-slate-800 text-white border-l-4 border-blue-500"
+                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                  }`}
               >
                 <span>Configuração de Alertas</span>
               </Link>

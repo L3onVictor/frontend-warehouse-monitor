@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { atualizarUsuario } from '@/services/api';
 
 type Prefs = {
   global: boolean;
@@ -21,6 +22,9 @@ export default function ConfiguracoesPage() {
       const raw = localStorage.getItem(`prefs_${user.id}`);
       if (raw) {
         try { setPrefs(JSON.parse(raw)); } catch { }
+      } else {
+        // Initialize from backend user value when no local prefs saved
+        setPrefs({ global: !!user.receberEmail, byEnv: {} });
       }
     }
   }, [user]);
@@ -49,6 +53,14 @@ export default function ConfiguracoesPage() {
 
     try {
       localStorage.setItem(`prefs_${user.id}`, JSON.stringify(prefs));
+      // Persist preference to backend
+      try {
+        await atualizarUsuario(user.id, { receberEmail: prefs.global });
+      } catch (apiErr) {
+        console.error('Erro ao atualizar usuário no backend', apiErr);
+        // continue — still update local UI state
+      }
+
       setUser({ ...user, receberEmail: prefs.global });
       setSuccess(true);
 
